@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Unique Calculator App</title>
+  <style>
+    :root {
+      --bg: #f0f8ff;
+      --text: #000;
+      --btn: #00bcd4;
+      --hover: #0097a7;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: var(--bg);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .calculator {
+      background: #fff;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.15);
+      width: 340px;
+      text-align: center;
+    }
+
+    .theme-select {
+      margin-bottom: 15px;
+    }
+
+    .theme-select select {
+      padding: 8px;
+      font-size: 14px;
+      border-radius: 5px;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    #display {
+      width: 100%;
+      height: 50px;
+      font-size: 24px;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 2px solid var(--btn);
+      border-radius: 8px;
+      text-align: right;
+      background: #fefefe;
+      color: var(--text);
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      padding: 15px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background-color: var(--btn);
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: var(--hover);
+      transform: scale(1.05);
+    }
+
+    .history {
+      text-align: left;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    .history h4 {
+      margin: 5px 0;
+    }
+
+    .history ul {
+      list-style: none;
+      padding-left: 0;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+
+    .history li {
+      padding: 3px 0;
+      border-bottom: 1px solid #ccc;
+    }
+
+    /* Themes */
+    .dark {
+      --bg: #121212;
+      --text: #fff;
+      --btn: #424242;
+      --hover: #616161;
+    }
+
+    .neon {
+      --bg: #000;
+      --text: #39ff14;
+      --btn: #1b1b1b;
+      --hover: #39ff14;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="theme-select">
+      <label for="theme">🎨 Theme: </label>
+      <select id="theme" onchange="changeTheme(this.value)">
+        <option value="">Light</option>
+        <option value="dark">Dark</option>
+        <option value="neon">Neon</option>
+      </select>
+    </div>
+
+    <h2>🧠 Smart Calculator</h2>
+    <input type="text" id="display" disabled />
+    <div class="buttons">
+      <button onclick="clearDisplay()">C</button>
+      <button onclick="appendValue('(')">(</button>
+      <button onclick="appendValue(')')">)</button>
+      <button onclick="appendValue('/')">÷</button>
+
+      <button onclick="appendValue('7')">7</button>
+      <button onclick="appendValue('8')">8</button>
+      <button onclick="appendValue('9')">9</button>
+      <button onclick="appendValue('*')">×</button>
+
+      <button onclick="appendValue('4')">4</button>
+      <button onclick="appendValue('5')">5</button>
+      <button onclick="appendValue('6')">6</button>
+      <button onclick="appendValue('-')">−</button>
+
+      <button onclick="appendValue('1')">1</button>
+      <button onclick="appendValue('2')">2</button>
+      <button onclick="appendValue('3')">3</button>
+      <button onclick="appendValue('+')">+</button>
+
+      <button onclick="appendValue('0')">0</button>
+      <button onclick="appendValue('.')">.</button>
+      <button onclick="calculate()">=</button>
+      <button onclick="backspace()">⌫</button>
+    </div>
+
+    <div class="history">
+      <h4>📜 History</h4>
+      <ul id="historyList"></ul>
+    </div>
+  </div>
+
+  <script>
+    const display = document.getElementById("display");
+    const historyList = document.getElementById("historyList");
+
+    let history = [];
+
+    function appendValue(val) {
+      display.value += val;
+    }
+
+    function clearDisplay() {
+      display.value = "";
+    }
+
+    function backspace() {
+      display.value = display.value.slice(0, -1);
+    }
+
+    function calculate() {
+      try {
+        const expression = display.value;
+        const result = eval(expression);
+        animateResult(result);
+        updateHistory(`${expression} = ${result}`);
+      } catch {
+        display.value = "Error";
+      }
+    }
+
+    function animateResult(value) {
+      let i = 0;
+      display.value = "";
+      const str = String(value);
+      const interval = setInterval(() => {
+        if (i < str.length) {
+          display.value += str[i];
+          i++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 50);
+    }
+
+    function updateHistory(entry) {
+      history.unshift(entry);
+      if (history.length > 5) history.pop();
+      renderHistory();
+    }
+
+    function renderHistory() {
+      historyList.innerHTML = "";
+      history.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        historyList.appendChild(li);
+      });
+    }
+
+    function changeTheme(theme) {
+      document.body.className = theme;
+    }
+  </script>
+</body>
+</html>
