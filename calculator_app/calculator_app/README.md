@@ -45,7 +45,7 @@ Intern at [CodeAlpha](https://www.codealpha.tech/)
 ## 📌 Task Info
 
 **Task 2: Calculator App**  
-✅ Submitted as part of CodeAlpha Web Development Internship  
+✅ Submitted as part of CodeAlpha App Development Internship  
 📅 Date: July 17, 2025
 
 ---
