@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>🌈 Mood-Based Quote Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #8e2de2, #4a00e0);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 30px;
+      background-color: rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .active {
+      display: flex;
+    }
+
+    input {
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      width: 80%;
+      font-size: 16px;
+      margin: 10px 0;
+    }
+
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn-primary {
+      background-color: #f1c40f;
+      color: #222;
+    }
+
+    .btn-secondary {
+      background-color: #2ecc71;
+      color: #fff;
+    }
+
+    .btn-back {
+      background-color: #e74c3c;
+      color: #fff;
+    }
+
+    #quote {
+      font-size: 1.4rem;
+      font-style: italic;
+      margin-top: 20px;
+    }
+
+    #author {
+      margin-top: 10px;
+      font-size: 1rem;
+      color: #ddd;
+    }
+
+    @media (max-width: 500px) {
+      #quote {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Mood Input Screen -->
+  <div id="homeScreen" class="screen active">
+    <h1>💬 Mood-Based Quotes</h1>
+    <p>Enter your mood (e.g., happy, sad, love, confused)</p>
+    <input type="text" id="moodInput" placeholder="Your mood..." />
+    <button class="btn-primary" onclick="startQuotes()">Get Quote</button>
+  </div>
+
+  <!-- Quote Display Screen -->
+  <div id="quoteScreen" class="screen">
+    <h2>Your Quote:</h2>
+    <div id="quote">Loading...</div>
+    <div id="author"></div>
+    <div>
+      <button class="btn-secondary" onclick="nextQuote()">Next</button>
+      <button class="btn-back" onclick="goBack()">Back</button>
+    </div>
+  </div>
+
+  <script>
+    const quotes = {
+      happy: [
+        { text: "Happiness is not something ready made. It comes from your own actions.", author: "Dalai Lama" },
+        { text: "The purpose of our lives is to be happy.", author: "Dalai Lama" },
+        { text: "Be happy for this moment. This moment is your life.", author: "Omar Khayyam" }
+      ],
+      sad: [
+        { text: "Tears come from the heart and not from the brain.", author: "Leonardo da Vinci" },
+        { text: "The walls we build around us to keep sadness out also keep out the joy.", author: "Jim Rohn" },
+        { text: "Sadness flies away on the wings of time.", author: "Jean de La Fontaine" }
+      ],
+      confused: [
+        { text: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
+        { text: "Confusion is a word we have invented for an order which is not understood.", author: "Henry Miller" },
+        { text: "Don't be afraid to take a big step if one is indicated.", author: "David Lloyd George" }
+      ],
+      love: [
+        { text: "Love is composed of a single soul inhabiting two bodies.", author: "Aristotle" },
+        { text: "To love and be loved is to feel the sun from both sides.", author: "David Viscott" },
+        { text: "Where there is love there is life.", author: "Mahatma Gandhi" }
+      ]
+    };
+
+    let currentMood = '';
+    let currentIndex = 0;
+
+    function startQuotes() {
+      const mood = document.getElementById("moodInput").value.trim().toLowerCase();
+
+      if (!quotes[mood]) {
+        alert("Sorry, we don't have quotes for that mood yet.");
+        return;
+      }
+
+      currentMood = mood;
+      currentIndex = 0;
+      showQuote();
+      document.getElementById("homeScreen").classList.remove("active");
+      document.getElementById("quoteScreen").classList.add("active");
+    }
+
+    function showQuote() {
+      const moodQuotes = quotes[currentMood];
+      const quote = moodQuotes[currentIndex];
+      document.getElementById("quote").innerText = `"${quote.text}"`;
+      document.getElementById("author").innerText = `– ${quote.author}`;
+    }
+
+    function nextQuote() {
+      const moodQuotes = quotes[currentMood];
+      currentIndex = (currentIndex + 1) % moodQuotes.length;
+      showQuote();
+    }
+
+    function goBack() {
+      document.getElementById("quoteScreen").classList.remove("active");
+      document.getElementById("homeScreen").classList.add("active");
+    }
+  </script>
+</body>
+</html>
