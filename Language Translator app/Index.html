@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Language Learning App</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      transition: background 0.3s;
+    }
+    .dark-mode {
+      background: #1e1e1e;
+      color: white;
+    }
+    #sidebar {
+      width: 220px;
+      background: #333;
+      color: white;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: -220px;
+      transition: 0.3s;
+      z-index: 1000;
+    }
+    #sidebar.open { left: 0; }
+    #sidebar h2 {
+      text-align: center;
+      padding: 1rem;
+      margin: 0;
+      background: #222;
+    }
+    #sidebar a {
+      display: block;
+      padding: 12px 20px;
+      color: white;
+      text-decoration: none;
+      border-bottom: 1px solid #444;
+      cursor: pointer;
+    }
+    #sidebar a:hover { background: #555; }
+
+    #main {
+      margin-left: 0;
+      padding: 20px;
+      transition: margin-left 0.3s;
+    }
+    #main.shift { margin-left: 220px; }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+    }
+    .hamburger {
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    select, button {
+      padding: 10px;
+      margin: 10px 5px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+    button {
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      max-width: 500px;
+      margin: 20px auto;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+    .dark-mode .card {
+      background: #2c2c2c;
+      color: white;
+    }
+    #quizFeedback {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .score-display {
+      font-size: 18px;
+      margin: 15px 0;
+      padding: 10px;
+      background: #f8f8f8;
+      border-radius: 5px;
+      text-align: center;
+    }
+    .dark-mode .score-display {
+      background: #333;
+    }
+    .quiz-option {
+      display: block;
+      width: 100%;
+      margin: 5px 0;
+      text-align: left;
+    }
+    #quizResults {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="sidebar">
+  <h2>📚 Menu</h2>
+  <a onclick="showScreen('welcome')">🏠 Home</a>
+  <a onclick="showScreen('select')">⚙️ Settings</a>
+  <a onclick="showScreen('learning')">📖 Learn</a>
+  <a onclick="showScreen('quiz')">📝 Quiz</a>
+  <a onclick="showScreen('about')">ℹ️ About</a>
+  <a onclick="toggleDarkMode()">🌗 Toggle Theme</a>
+</div>
+
+<div id="main">
+  <div class="topbar">
+    <div class="hamburger" onclick="toggleSidebar()">☰</div>
+    <h2>🌍 Language Learning</h2>
+    <div id="scoreDisplay" class="score-display">Score: 0/0</div>
+  </div>
+
+  <!-- Welcome Screen -->
+  <div id="welcome" class="screen active">
+    <div class="card">
+      <h3>📅 Daily Word</h3>
+      <p><strong id="dailyWord">Hello</strong> - <span id="dailyMeaning">A greeting</span></p>
+      <button onclick="pronounceDaily()">🔊 Pronounce</button>
+    </div>
+    <div style="text-align:center;">
+      <button onclick="showScreen('select')">👉 Get Started</button>
+    </div>
+  </div>
+
+  <!-- Select Language Screen -->
+  <div id="select" class="screen">
+    <div class="card">
+      <h2>🔤 Choose Language & Category</h2>
+      <label>Language:</label>
+      <select id="language">
+        <option value="english">English</option>
+        <option value="hindi">Hindi</option>
+        <option value="telugu">Telugu</option>
+        <option value="french">French</option>
+        <option value="spanish">Spanish</option>
+      </select>
+      <label>Category:</label>
+      <select id="category">
+        <option value="vocabulary">Vocabulary</option>
+        <option value="phrases">Phrases</option>
+        <option value="grammar">Grammar</option>
+      </select>
+      <br>
+      <button onclick="startLearning()">Next ➡️</button>
+    </div>
+  </div>
+
+  <!-- Learning Screen -->
+  <div id="learning" class="screen">
+    <div class="card">
+      <h2 id="word">Word</h2>
+      <p id="meaning">Meaning</p>
+      <button onclick="pronounce()">🔊 Pronounce</button>
+      <button onclick="nextWord()">Next ➡️</button>
+    </div>
+  </div>
+
+  <!-- Quiz Screen -->
+  <div id="quiz" class="screen">
+    <div class="card">
+      <h2>📝 Quiz</h2>
+      <div id="quizQuestion">Question here...</div>
+      <button class="quiz-option" onclick="checkAnswer(this)" data-answer="">Option 1</button>
+      <button class="quiz-option" onclick="checkAnswer(this)" data-answer="">Option 2</button>
+      <button class="quiz-option" onclick="checkAnswer(this)" data-answer="">Option 3</button>
+      <div id="quizFeedback"></div>
+      <div id="quizResults"></div>
+      <button onclick="resetQuiz()" style="background-color: #f44336;">Reset Quiz</button>
+    </div>
+  </div>
+
+  <!-- About Screen -->
+  <div id="about" class="screen">
+    <div class="card">
+      <h2>ℹ️ About</h2>
+      <p>This app is created by <strong>Rakshitha Challaram</strong> as part of the <strong>CodeAlpha App Development Internship</strong> (Task 4).</p>
+      <p>Technologies: HTML, CSS, JavaScript</p>
+      <p>Features include daily words, pronunciation, quiz, and category-based learning for multiple languages.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentLang = "", currentCat = "", currentList = [], wordIndex = 0;
+  let score = 0, totalQuestions = 0, currentQuizIndex = 0;
+  let quizAttempted = false;
+
+  const data = {
+    hindi: {
+      vocabulary: [["पुस्तक", "Book"], ["पानी", "Water"]],
+      phrases: [["कैसे हो?", "How are you?"], ["धन्यवाद", "Thank you"]],
+      grammar: [["संज्ञा", "Noun"], ["क्रिया", "Verb"]],
+      quiz: [
+        { q: "What is 'पानी'?", a: "Water", options: ["Book", "Water", "Verb"] },
+        { q: "What is 'धन्यवाद'?", a: "Thank you", options: ["Hello", "Thank you", "Goodbye"] }
+      ]
+    },
+    telugu: {
+      vocabulary: [["పుస్తకం", "Book"], ["నీరు", "Water"]],
+      phrases: [["ఎలా ఉన్నావు?", "How are you?"], ["ధన్యవాదాలు", "Thank you"]],
+      grammar: [["నామవాచకం", "Noun"], ["క్రియ", "Verb"]],
+      quiz: [
+        { q: "What is 'నీరు'?", a: "Water", options: ["Verb", "Water", "Sorry"] },
+        { q: "What is 'ధన్యవాదాలు'?", a: "Thank you", options: ["Hello", "Thank you", "Please"] }
+      ]
+    },
+    spanish: {
+      vocabulary: [["Libro", "Book"], ["Agua", "Water"]],
+      phrases: [["¿Cómo estás?", "How are you?"], ["Gracias", "Thank you"]],
+      grammar: [["Sustantivo", "Noun"], ["Verbo", "Verb"]],
+      quiz: [
+        { q: "What is 'Agua'?", a: "Water", options: ["Book", "Sorry", "Water"] },
+        { q: "What is 'Gracias'?", a: "Thank you", options: ["Please", "Thank you", "Hello"] }
+      ]
+    },
+    french: {
+      vocabulary: [["Livre", "Book"], ["Eau", "Water"]],
+      phrases: [["Comment ça va?", "How are you?"], ["Merci", "Thank you"]],
+      grammar: [["Nom", "Noun"], ["Verbe", "Verb"]],
+      quiz: [
+        { q: "What is 'Eau'?", a: "Water", options: ["Noun", "Water", "Verb"] },
+        { q: "What is 'Merci'?", a: "Thank you", options: ["Please", "Thank you", "Hello"] }
+      ]
+    },
+    english: {
+      vocabulary: [["Sun", "A star"], ["Apple", "A fruit"]],
+      phrases: [["Good morning", "Greeting"], ["Take care", "Farewell"]],
+      grammar: [["Adjective", "Describes a noun"], ["Pronoun", "Replaces a noun"]],
+      quiz: [
+        { q: "What is 'Apple'?", a: "A fruit", options: ["Greeting", "A fruit", "Verb"] },
+        { q: "What is 'Good morning'?", a: "Greeting", options: ["Farewell", "Greeting", "Question"] }
+      ]
+    }
+  };
+
+  // Set daily word
+  const allWords = [];
+  Object.values(data).forEach(lang => {
+    Object.values(lang).forEach(category => {
+      if (Array.isArray(category) && category.length > 0 && Array.isArray(category[0])) {
+        allWords.push(...category);
+      }
+    });
+  });
+  const random = allWords[Math.floor(Math.random() * allWords.length)];
+  document.getElementById("dailyWord").innerText = random[0];
+  document.getElementById("dailyMeaning").innerText = random[1];
+
+  function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("open");
+    document.getElementById("main").classList.toggle("shift");
+  }
+
+  function toggleDarkMode() {
+    document.body.classList.toggle("dark-mode");
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(screen => {
+      screen.classList.remove("active");
+    });
+    document.getElementById(id).classList.add("active");
+    
+    if (id === 'learning' && currentList.length > 0) {
+      loadWord();
+    } else if (id === 'quiz') {
+      if (!quizAttempted) {
+        resetQuiz();
+      }
+      loadQuiz();
+    }
+  }
+
+  function updateScoreDisplay() {
+    document.getElementById("scoreDisplay").innerText = `Score: ${score}/${totalQuestions}`;
+  }
+
+  function startLearning() {
+    currentLang = document.getElementById("language").value;
+    currentCat = document.getElementById("category").value;
+    
+    if (data[currentLang] && data[currentLang][currentCat]) {
+      currentList = data[currentLang][currentCat];
+      wordIndex = 0;
+      showScreen("learning");
+    } else {
+      alert("No data available for this selection. Please try another combination.");
+    }
+  }
+
+  function loadWord() {
+    if (currentList && currentList.length > 0) {
+      document.getElementById("word").innerText = currentList[wordIndex][0];
+      document.getElementById("meaning").innerText = currentList[wordIndex][1];
+    }
+  }
+
+  function nextWord() {
+    if (currentList && currentList.length > 0) {
+      wordIndex = (wordIndex + 1) % currentList.length;
+      loadWord();
+    }
+  }
+
+  function pronounce() {
+    if (currentList && currentList.length > 0) {
+      const word = currentList[wordIndex][0];
+      const utter = new SpeechSynthesisUtterance(word);
+      speechSynthesis.speak(utter);
+    }
+  }
+
+  function pronounceDaily() {
+    const word = document.getElementById("dailyWord").innerText;
+    const utter = new SpeechSynthesisUtterance(word);
+    speechSynthesis.speak(utter);
+  }
+
+  function loadQuiz() {
+    if (data[currentLang] && data[currentLang].quiz && data[currentLang].quiz.length > 0) {
+      const quiz = data[currentLang].quiz[currentQuizIndex];
+      document.getElementById("quizQuestion").innerText = quiz.q;
+      const btns = document.querySelectorAll("#quiz button.quiz-option");
+      quiz.options.forEach((opt, i) => {
+        if (btns[i]) {
+          btns[i].innerText = opt;
+          btns[i].setAttribute("data-answer", opt);
+          btns[i].style.backgroundColor = "#4CAF50"; // Reset button color
+        }
+      });
+      document.getElementById("quizFeedback").innerText = "";
+      document.getElementById("quizResults").innerHTML = "";
+      
+      // Update total questions if this is the first question
+      if (currentQuizIndex === 0 && !quizAttempted) {
+        totalQuestions = data[currentLang].quiz.length;
+        updateScoreDisplay();
+      }
+    }
+  }
+
+  function checkAnswer(btn) {
+    if (quizAttempted) return;
+    
+    const answer = btn.getAttribute("data-answer");
+    if (data[currentLang] && data[currentLang].quiz && data[currentLang].quiz.length > 0) {
+      const correct = data[currentLang].quiz[currentQuizIndex].a;
+      if (answer === correct) {
+        document.getElementById("quizFeedback").innerText = "✅ Correct!";
+        score++;
+        btn.style.backgroundColor = "#4CAF50";
+      } else {
+        document.getElementById("quizFeedback").innerText = "❌ Incorrect!";
+        btn.style.backgroundColor = "#f44336";
+        // Highlight correct answer
+        const btns = document.querySelectorAll("#quiz button.quiz-option");
+        btns.forEach(b => {
+          if (b.getAttribute("data-answer") === correct) {
+            b.style.backgroundColor = "#4CAF50";
+          }
+        });
+      }
+      
+      updateScoreDisplay();
+      quizAttempted = true;
+      
+      // Move to next question or show results
+      setTimeout(() => {
+        currentQuizIndex++;
+        if (currentQuizIndex < data[currentLang].quiz.length) {
+          loadQuiz();
+          quizAttempted = false;
+        } else {
+          showQuizResults();
+        }
+      }, 1500);
+    }
+  }
+
+  function showQuizResults() {
+    const percentage = Math.round((score / totalQuestions) * 100);
+    let message = "";
+    if (percentage >= 80) {
+      message = "🎉 Excellent!";
+    } else if (percentage >= 60) {
+      message = "👍 Good job!";
+    } else {
+      message = "💪 Keep practicing!";
+    }
+    
+    document.getElementById("quizResults").innerHTML = `
+      <h3>Quiz Complete!</h3>
+      <p>Your score: ${score}/${totalQuestions} (${percentage}%)</p>
+      <p>${message}</p>
+    `;
+  }
+
+  function resetQuiz() {
+    score = 0;
+    currentQuizIndex = 0;
+    totalQuestions = data[currentLang] ? data[currentLang].quiz.length : 0;
+    quizAttempted = false;
+    updateScoreDisplay();
+    loadQuiz();
+  }
+</script>
+
+</body>
+</html>
